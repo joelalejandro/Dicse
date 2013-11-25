@@ -3,6 +3,10 @@ Dicse
 
 A straight-forward translation engine for ASP.NET MVC.
 
+## Dependencies
+
+Newtonsoft.Json >= 5.0.8
+
 ## Installation
 
 Install the NuGet package:
