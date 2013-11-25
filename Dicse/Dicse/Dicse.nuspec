@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Dicse</id>
+    <version>0.1.0</version>
+    <title>Dicse</title>
+    <authors>Joel A. Villarreal Bertoldi</authors>
+    <owners>Joel A. Villarreal Bertoldi</owners>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <projectUrl>http://joelalejandro.com</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>A simple ASP.NET MVC translation helper.</description>
+    <copyright></copyright>
+    <tags>language translation localization i18n i10n</tags>
+  </metadata>
+</package>

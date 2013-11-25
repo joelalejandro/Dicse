@@ -1,0 +1,11 @@
+﻿{
+    "Language": "es-ar",
+    "Translations": {
+        "global": {
+            "original": "translated"
+        },
+        "shopping": {
+            "original": "translated shopping"
+        }
+    }
+}
