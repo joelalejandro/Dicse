@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Dicse by joelalejandro</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Dicse</h1>
+        <h2>A straight-forward translation engine for ASP.NET MVC.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/joelalejandro/Dicse/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/joelalejandro/Dicse/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/joelalejandro/Dicse" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a name="dicse" class="anchor" href="#dicse"><span class="octicon octicon-link"></span></a>Dicse</h1>
+
+<p>A straight-forward translation engine for ASP.NET MVC.</p>
+
+<h2>
+<a name="dependencies" class="anchor" href="#dependencies"><span class="octicon octicon-link"></span></a>Dependencies</h2>
+
+<p>Newtonsoft.Json &gt;= 5.0.8</p>
+
+<h2>
+<a name="installation" class="anchor" href="#installation"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Install the NuGet package:</p>
+
+<pre><code>PM&gt; Install-Package Dicse</code></pre>
+
+<h2>
+<a name="creating-a-dictionary" class="anchor" href="#creating-a-dictionary"><span class="octicon octicon-link"></span></a>Creating a dictionary</h2>
+
+<p>Dicse currently supports two dictionary formats: JSON and XML. Each dictionary contains one language,
+and multiple contexts.</p>
+
+<p>You'd use the context for translating the same word under different subjects. For instance, the word
+<code>bit</code> can be interpreted as the basic unit of information in computing or as a tiny piece of something.
+Thus, you'd use the global context for the default behaviour, and a different context for the specific
+meaning.</p>
+
+<p>Also, contexts allow you to group translation keys by subject or by anything that suits you best.</p>
+
+<h3>
+<a name="the-json-dictionary" class="anchor" href="#the-json-dictionary"><span class="octicon octicon-link"></span></a>The JSON dictionary</h3>
+
+<pre><code>{
+  "Language": "es-es",
+  "Translations": {
+    "global": {
+      "Hello": "Hola",
+      "Goodbye": "Adiós",
+      "Hello {0}": "Hola {0}"
+    },
+    "family": {
+      "Hello": "Hey, qué tal?",
+      "Goodbye": "Hasta luego!"
+    }
+  }
+}</code></pre>
+
+<h3>
+<a name="the-xml-dictionary" class="anchor" href="#the-xml-dictionary"><span class="octicon octicon-link"></span></a>The XML dictionary</h3>
+
+<pre><code>&lt;?xml version="1.0"&gt;
+&lt;translations language="es-es"&gt;
+  &lt;contexts&gt;
+    &lt;context id="global"&gt;
+      &lt;entry key="Hello" translated="Hola"/&gt;
+      &lt;entry key="Goodbye" translated="Adiós"/&gt;
+      &lt;entry key="Hello {0}" translated="Hola {0}"/&gt;
+    &lt;/context&gt;
+    &lt;context id="family"&gt;
+      &lt;entry key="Hello" translated="Hey, qué tal?"/&gt;
+      &lt;entry key="Goodbye" translated="Hasta luego!"/&gt;
+    &lt;/context&gt;
+  &lt;/contexts&gt;
+&lt;/translations&gt;
+</code></pre>
+
+<h2>
+<a name="configuring-dicse" class="anchor" href="#configuring-dicse"><span class="octicon octicon-link"></span></a>Configuring Dicse</h2>
+
+<p>In order for Dicse to work, the dictionaries must be loaded first.</p>
+
+<p>A recommended way to do this is to create a <code>TranslatorConfig</code> class in the <code>App_Start</code> folder
+of your MVC project, containing the following:</p>
+
+<pre><code>public class TranslatorConfig
+{
+    public static void ConfigureTranslations(Translator t)
+    {
+        // Load a translation file.
+        t.LoadFromFile("~/Translations/es-ar.json");
+        
+        // Set a default language.
+        t.DestinationLanguage = "es-ar";
+    }
+}</code></pre>
+
+<p>Afterwards, you must call the <code>ConfigureTranslations</code> method in your <code>Global.asax</code> file:</p>
+
+<pre><code>public class MvcApplication : System.Web.HttpApplication
+{
+    protected void Application_Start()
+    {
+        // ... all other inits ...
+        
+        TranslatorConfig.ConfigureTranslations(JsonTranslator.Default);
+        // or
+        TranslatorConfig.ConfigureTranslations(XmlTranslator.Default);
+    }
+}</code></pre>
+
+<p>In the <code>Application_Start</code> event, you must define which translator engine to use (JSON or XML). <em>You cannot mix
+between dictionary formats, you must pick one.</em></p>
+
+<h2>
+<a name="localizing-your-text" class="anchor" href="#localizing-your-text"><span class="octicon octicon-link"></span></a>Localizing your text</h2>
+
+<p>To use Dicse in your views, simply use the <code>Translate</code> method in the <code>Html</code> helper:</p>
+
+<pre><code>@Html.Translate("Hello")</code></pre>
+
+<p>You can also translate with tokens:</p>
+
+<pre><code>@Html.Translate("Hello {0}", "John Doe")</code></pre>
+
+<p>If you need to reference a specifix context, prepend the context name along with a pipe (|) to the translation key:</p>
+
+<pre><code>@Html.Translate("family|Hello")</code></pre>
+
+<p>You must include <code>@using Dicse.Json;</code> or <code>@using Dicse.Xml;</code> at the top of your view so Razor can recognise the
+extension methods of <code>HtmlHelper</code>.</p>
+
+<h3>
+<a name="optional-register-the-dicse-namespace-in-your-razor-views-webconfig-file" class="anchor" href="#optional-register-the-dicse-namespace-in-your-razor-views-webconfig-file"><span class="octicon octicon-link"></span></a>Optional: Register the Dicse namespace in your Razor Views web.config file</h3>
+
+<p>If you want to avoid having to add the <code>@using Dicse.Json;</code> or <code>@using Dicse.Xml;</code> on every view you wish to
+translate, you must register the Dicse namespace on the <code>&lt;pages&gt;</code> section of <code>Views/web.config</code>:</p>
+
+<pre><code>&lt;system.web.webPages.razor&gt;
+  &lt;host factoryType="System.Web.Mvc.MvcWebRazorHostFactory, System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31BF3856AD364E35" /&gt;
+  &lt;pages pageBaseType="System.Web.Mvc.WebViewPage"&gt;
+    &lt;namespaces&gt;
+      &lt;!-- 
+      ...
+      ...
+      other namespaces
+      ...
+      ... --&gt;
+      &lt;add namespace="Dicse.Json" /&gt; &lt;!-- or &lt;add namespace="Dicse.Xml" /&gt; --&gt;
+    &lt;/namespaces&gt;
+  &lt;/pages&gt;
+&lt;/system.web.webPages.razor&gt;</code></pre>
+
+<p><strong>Important:</strong> If you have your view file open while performing the forementioned changes to the Web.config file,
+<strong>close</strong> all view files and then reopen them, otherwise Razor won't recognise the <code>Translate</code> method.</p>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Dicse is licensed under the MIT License.</p>
+
+<h2>
+<a name="contribute" class="anchor" href="#contribute"><span class="octicon octicon-link"></span></a>Contribute</h2>
+
+<p>Feel free to fork this project, report issues and propose pull requests!</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
